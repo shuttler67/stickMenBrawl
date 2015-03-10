@@ -8,7 +8,7 @@ local leftOverDeltaTime = 0
 
 local constraintAccuracy = 10
 
-physics.gravity = 1000
+physics.gravity = 2000
 physics.damping = 0.99
 
 function physics.update( dt, pointmasses, world )

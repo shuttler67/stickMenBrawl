@@ -102,7 +102,9 @@ function PointMass:attachTo(pointmass, restingDist, stiff, tearSensitivity, draw
 end
 
 function PointMass:becomeJoint(p1, p2, minAngle, maxAngle, stiffness)
-    table.insert(self.joints, Joint(p1, self, p2, minAngle, maxAngle, stiffness))
+    local j = Joint(p1, self, p2, minAngle, maxAngle, stiffness)
+    table.insert(self.joints, j)
+    return j
 end
 
 function PointMass:removeLink(link)

@@ -19,7 +19,8 @@ function love.load()
     require "StaticPolygon"
     require "World"
     require "Game"
-    require "Player"
+    require "Gyroscope"
+    require "Stickman"
 
     love.graphics.setBackgroundColor(255, 255, 255)
     love.window.setMode(640, 480)
@@ -42,7 +43,7 @@ function love.update(dt)
         if love.mouse.isDown("r") then
             gamestate = "offlinegame"
             love.graphics.setBackgroundColor(0, 0, 0)
-            game = Game(Player(100, 100), Player(300, 100))
+            game = Game(Stickman(100, 100), Stickman(300, 100))
         end
     elseif gamestate == "offlinegame" then
         game:update(dt)

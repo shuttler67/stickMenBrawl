@@ -17,8 +17,8 @@ function Vector:init(x, y)
 end
 
 function Vector:newNormal(phi)
-    self.x = math.round(math.cos(phi))
-    self.y = math.round(math.sin(phi))
+    self.x = math.cos(phi)
+    self.y = math.sin(phi)
     return self
 end
 

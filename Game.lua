@@ -1,7 +1,9 @@
 Game = Class("Game")
 
 local world = World()
-table.insert(world:getStaticPolygons(), StaticPolygon(Vector(200, 200), Vector(500, 200), Vector(500,300), Vector(200, 300)))
+--table.insert(world:getStaticPolygons(), StaticPolygon(Vector(200, 200), Vector(500, 200), Vector(500,300), Vector(200, 300)))
+
+local counter = 0
 
 function Game:init(player1, player2)
     self.player1 = player1
@@ -18,6 +20,7 @@ function Game:init(player1, player2)
 end
 
 function Game:update(dt)
+    counter = counter + 1
     
     physics.update(dt, self.pointmasses, world)
         
@@ -27,6 +30,26 @@ function Game:update(dt)
         end
     else
         self.grabbed = {}
+    end
+    
+    if counter % 40 == 0 then
+        self.player1.thighMuscleLeft.maxa = -math.pi * 0.5
+        self.player1.thighMuscleLeft.mina = -math.pi * 0.5
+        self.player1.thighMuscleRight.maxa = math.pi * 0.8
+        self.player1.thighMuscleRight.mina = math.pi * 0.8
+        self.player1.legMuscleRight.maxa = math.pi * 0.7
+        self.player1.legMuscleRight.mina = math.pi * 0.7
+        self.player1.legMuscleLeft.maxa = math.pi * 0.5
+        self.player1.legMuscleLeft.mina = math.pi * 0.5
+    elseif counter % 20 == 0 then
+        self.player1.thighMuscleLeft.maxa = math.pi * 0.8
+        self.player1.thighMuscleLeft.mina = math.pi * 0.8
+        self.player1.thighMuscleRight.maxa = -math.pi * 0.5
+        self.player1.thighMuscleRight.mina = -math.pi * 0.5
+        self.player1.legMuscleLeft.maxa = math.pi * 0.7
+        self.player1.legMuscleLeft.mina = math.pi * 0.7
+        self.player1.legMuscleRight.maxa = math.pi * 0.5
+        self.player1.legMuscleRight.mina = math.pi * 0.5
     end
 end
 
