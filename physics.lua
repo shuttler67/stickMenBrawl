@@ -32,23 +32,6 @@ function physics.update( dt, pointmasses, world )
     end
 end
 
-function physics.simulateFriction(pointmass, friction, normal, penetration)
-
-    local pV = pointmass.pos - pointmass.lastPos
-    local t = Vector(normal.y, -normal.x)
-
-    local jt = -(t * pV)
-    
-    local tangentImpulse
-    if math.abs(jt) < -penetration * friction then
-        tangentImpulse = t * jt
-    else
-        tangentImpulse = t * (penetration * (jt > 0 and -1 or 1) * friction)
-    end
-    
-    pointmass.lastPos = pointmass.lastPos - tangentImpulse
-end
-
 function physics.getDeltaTime() return fixedDeltaTime end
 
 return physics

@@ -1,11 +1,11 @@
 Link = Class("Link")
 
-function Link:init(pm1, pm2, restingDist, stiff, tearSensitivity, drawMe)
+function Link:init(pm1, pm2, restingDistance, stiff, tearSensitivity, drawMe)
 
     self.p1 = pm1
     self.p2 = pm2
 
-    self.restingDistance = restingDist
+    self.restingDistance = restingDistance
     self.stiffness = stiff
     self.drawThis = drawMe
     self.tearSensitivity = tearSensitivity
@@ -32,11 +32,9 @@ function Link:solve()
 --            physics.addPointMass(newp1)
 --            physics.addPointMass(newp2)
 --        end
-    end
+end
 
-    local im1 = 1 / self.p1.mass
-    local im2 = 1 / self.p2.mass
-    local scalarP1 = (im1 / (im1 + im2)) * self.stiffness
+    local scalarP1 = (self.p1.imass / (self.p1.imass + self.p2.imass)) * self.stiffness
     local scalarP2 = self.stiffness - scalarP1
 
     self.p1.pos = self.p1.pos + diff * scalarP1 * difference

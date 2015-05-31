@@ -6,7 +6,7 @@ function Gyroscope:init(angle, a, b)
     self.angle = angle
 end
 
-function Gyroscope:solve()
+function Gyroscope:doGyroScopicAction()
     local vec1 = self.a.pos - self.b.pos
     
     local angle = math.atan2(Vector(0,1) % vec1, Vector(0,1) * vec1) --"%" = cross product
@@ -21,13 +21,10 @@ function Gyroscope:solve()
     
     if math.abs(diff) < 0.0001 then return end
 
-    diff = (diff) /physics.getDeltaTime()
+    diff = (diff /physics.getDeltaTime()) * 0.8
     
-    local imA = 1/self.a.mass
-    local imB = 1/self.b.mass
-    local imTotal = imA + imB
+    local imTotal = self.a.imass + self.b.imass
     
-    
-    self.b.pos:rotateAround(self.a.pos, diff * imB / imTotal)
-    self.a.pos:rotateAround(self.b.pos, diff * imA / imTotal)
+    self.b.pos:rotateAround(self.a.pos, diff * self.b.imass / imTotal)
+    self.a.pos:rotateAround(self.b.pos, diff * self.a.imass / imTotal)
 end

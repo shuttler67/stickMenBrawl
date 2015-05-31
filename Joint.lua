@@ -41,15 +41,19 @@ function Joint:solve()
     
     if math.abs(diff) < 0.0001 then return end
 
-    diff = (diff * self.stiffness) /physics.getDeltaTime()
+    diff = (diff /physics.getDeltaTime()) * self.stiffness
     
-    local imA = 1/self.a.mass
-    local imB = 1/self.b.mass
-    local imC = 1/self.c.mass
-    local imTotal = imA + imB + imC
+    local imTotal = self.a.imass + self.b.imass + self.c.imass
     
-    self.a.pos:rotateAround(self.b.pos, diff * imA / imTotal)
-    self.c.pos:rotateAround(self.b.pos, -diff * imC / imTotal)
-    self.b.pos:rotateAround(self.a.pos, diff * imB / imTotal)
-    self.b.pos:rotateAround(self.c.pos, -diff * imB / imTotal)
+    self.a.pos:rotateAround(self.b.pos, diff * self.a.imass / imTotal)
+    self.c.pos:rotateAround(self.b.pos, -diff * self.c.imass / imTotal)
+    self.b.pos:rotateAround(self.a.pos, diff * self.b.imass / imTotal)
+    self.b.pos:rotateAround(self.c.pos, -diff * self.b.imass / imTotal)
 end
+
+function Joint:negateAngle()
+    local tmina = self.mina
+    self.mina = -self.maxa
+    self.maxa = -tmina
+end
+

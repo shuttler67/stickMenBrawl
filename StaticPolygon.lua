@@ -106,7 +106,8 @@ function StaticPolygon:solvePointMass(pointmass)
     
     pointmass.pos = pointmass.pos + correction
     
-    physics.simulateFriction(pointmass, self.friction, normal, penetration)
+    pointmass:simulateFriction( self.friction, normal, penetration)
+    --pointmass:applyForce(normal * -penetration * 800)
     
     return normal, penetration
 end
@@ -136,8 +137,8 @@ function StaticPolygon:solveLink(link)
     local s = link.p2.pos - q
     q = q - s * 0.02 --make it slightly longer so as to stop jittering
     s = s *1.04
-    local dist = s:Length()
-    local linkNormal = s:normalised(dist)
+    --local dist = 
+    local linkNormal = s:normalised()
 
     linkNormal:set(-linkNormal.y, linkNormal.x)
     
@@ -199,8 +200,12 @@ function StaticPolygon:solveLink(link)
             link.p1.pos = link.p1.pos + d * ratio1
             link.p2.pos = link.p2.pos + d * ratio2
             
-            physics.simulateFriction(link.p1, self.friction, linkNormal, penetration * 0.5)
-            physics.simulateFriction(link.p2, self.friction, linkNormal, penetration * 0.5)
+            link.p1:simulateFriction( self.friction, linkNormal, penetration * ratio1)
+            link.p2:simulateFriction( self.friction, linkNormal, penetration * ratio2)
+                    
+            --link.p1:applyForce(linkNormal * -penetration * 800 )
+            --link.p2:applyForce(linkNormal * -penetration * 800 )
+            
             return linkNormal, penetration
         end
     end

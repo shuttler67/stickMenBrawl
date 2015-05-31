@@ -1,9 +1,7 @@
 Game = Class("Game")
 
 local world = World()
---table.insert(world:getStaticPolygons(), StaticPolygon(Vector(200, 200), Vector(500, 200), Vector(500,300), Vector(200, 300)))
-
-local counter = 0
+table.insert(world:getStaticPolygons(), StaticPolygon(Vector(200, 200), Vector(550, 200), Vector(500,330), Vector(200, 300)))
 
 function Game:init(player1, player2)
     self.player1 = player1
@@ -15,15 +13,16 @@ function Game:init(player1, player2)
         table.insert(self.pointmasses, v)
     end
     for _, v in pairs(self.player2.pointmasses) do
-        table.insert(self.pointmasses, v)
+        --table.insert(self.pointmasses, v)
     end
 end
 
 function Game:update(dt)
-    counter = counter + 1
     
     physics.update(dt, self.pointmasses, world)
-        
+    
+    --self.player2:update()
+    self.player1:update()
     if love.mouse.isDown("l") then -- doesn't work in server
         for k, v in pairs(self.grabbed) do 
             k.pos = Vector(love.mouse.getX(), love.mouse.getY()) + v
@@ -31,25 +30,20 @@ function Game:update(dt)
     else
         self.grabbed = {}
     end
-    
-    if counter % 40 == 0 then
-        self.player1.thighMuscleLeft.maxa = -math.pi * 0.5
-        self.player1.thighMuscleLeft.mina = -math.pi * 0.5
-        self.player1.thighMuscleRight.maxa = math.pi * 0.8
-        self.player1.thighMuscleRight.mina = math.pi * 0.8
-        self.player1.legMuscleRight.maxa = math.pi * 0.7
-        self.player1.legMuscleRight.mina = math.pi * 0.7
-        self.player1.legMuscleLeft.maxa = math.pi * 0.5
-        self.player1.legMuscleLeft.mina = math.pi * 0.5
-    elseif counter % 20 == 0 then
-        self.player1.thighMuscleLeft.maxa = math.pi * 0.8
-        self.player1.thighMuscleLeft.mina = math.pi * 0.8
-        self.player1.thighMuscleRight.maxa = -math.pi * 0.5
-        self.player1.thighMuscleRight.mina = -math.pi * 0.5
-        self.player1.legMuscleLeft.maxa = math.pi * 0.7
-        self.player1.legMuscleLeft.mina = math.pi * 0.7
-        self.player1.legMuscleRight.maxa = math.pi * 0.5
-        self.player1.legMuscleRight.mina = math.pi * 0.5
+end
+
+function Game:draw()
+    for _, p in pairs(self.pointmasses) do
+        p:draw()
+    end
+    for _, p in pairs(self:getWorld():getStaticPolygons()) do
+        local coords = {}
+        for _,v in pairs(p.vertices) do
+            table.insert(coords, v.x)
+            table.insert(coords, v.y)
+        end
+        love.graphics.setColor(240,240,240)
+        love.graphics.polygon("fill",coords)
     end
 end
 
@@ -69,5 +63,11 @@ function Game:mousepressed(x, y, button)
         if dx * dx + dy * dy < 150 then
             self.grabbed[v] = Vector(dx, dy)
         end
+    end
+end
+
+function Game:keypressed(key)
+    if key == "a" then
+        --self.player1:kickLeft()
     end
 end

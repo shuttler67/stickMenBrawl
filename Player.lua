@@ -1,77 +1,120 @@
-Player = Class("Player")
+Player = Class("Player", Stickman)
 
-function Player:init( x, y )
-    local headLength = 40
+local shouldermass =26
+function Player:init(x, y)
+    self.super:init(x, y)
     
-    self.head = PointMass(x, y)
-    self.head.size = headLength / 2
-    self.head.mass = 4
+    self.thighMuscleLeft = self.pelvis:becomeMuscle(self.shoulder, self.kneeLeft, math.pi * 0.7, 0)
+    self.thighMuscleRight = self.pelvis:becomeMuscle(self.shoulder, self.kneeRight, -math.pi * 0.7, 0)
     
-    self.shoulder = PointMass(x, y + headLength/1.9)
-    self.shoulder.mass = 26
-    self.head:attachTo(self.shoulder, headLength/1.9, 1, nil, false)
+    self.legMuscleRight = self.kneeRight:becomeMuscle(self.pelvis, self.footRight, math.pi *0.7 , 0.8)
+    self.legMuscleLeft = self.kneeLeft:becomeMuscle(self.pelvis, self.footLeft, math.pi *0.7, 0.8)
     
-    self.elbowLeft = PointMass(x + 4/5 * headLength, y + 0.88 * headLength)
-    self.elbowRight = PointMass(x - 4/5 * headLength, y + 0.88 * headLength)
-    self.elbowLeft.mass = 2
-    self.elbowRight.mass = 2
-    self.elbowLeft:attachTo(self.shoulder, headLength*1.1, 1, nil, true)
-    self.elbowRight:attachTo(self.shoulder, headLength*1.1, 1, nil, true)
+    --self.bicepsANDtricepsLeft = self.elbowLeft:becomeMuscle(self.shoulder, self.handLeft, -0.8, 0.7)
+    --self.bicepsANDtricepsRight = self.elbowLeft:becomeMuscle(self.shoulder, self.handRight, -1, 0.7)
     
-    self.handLeft = PointMass(x + 1.5 * headLength, y + 1.6 * headLength)
-    self.handRight = PointMass(x - 1.5 * headLength, y + 1.6 * headLength)
-    self.handLeft.mass = 2
-    self.handRight.mass = 2
-    self.handLeft:attachTo(self.elbowLeft, headLength*1.0, 1, nil, true)
-    self.handRight:attachTo(self.elbowRight, headLength*1.0, 1, nil, true)
+    --self.armMuscleLeft = self.shoulder:becomeMuscle(self.pelvis, self.elbowLeft, 0.3 ,0.7)
+    --self.armMuscleRight = self.shoulder:becomeMuscle(self.pelvis, self.elbowRight, 1.3 ,0.7)
     
-    self.pelvis = PointMass(x, y + 2 * headLength)
-    self.pelvis.mass = 15
-    self.pelvis:attachTo(self.shoulder, 1.5 * headLength, 1, nil, true)
-    self.pelvis:attachTo(self.head, headLength/1.9 + 1.5 * headLength, 0.05, nil, false)
+    self.balance = Gyroscope(0, self.pelvis, self.shoulder)
+    self.footLeft:subscribeToCollisions(self.doFootFever, self)
+    self.footRight:subscribeToCollisions(self.doFootFever, self)
+    self.footmina = 3
+    self.footmaxa = -3
+    self.thigh = (math.pi * 1.4) / 60
     
-    self.kneeLeft = PointMass(x + 3/5 * headLength, y + 3.57 * headLength)
-    self.kneeRight = PointMass(x - 3/5 * headLength, y + 3.57 * headLength)
-    self.kneeLeft.mass = 10
-    self.kneeRight.mass = 10
-    self.kneeLeft:attachTo(self.pelvis, 1.5 * headLength, 1, nil, true)
-    self.kneeRight:attachTo(self.pelvis, 1.5 * headLength, 1, nil, true)
+    self.footLeft:addMuscles(self.thighMuscleLeft, self.legMuscleLeft)
+    self.footRight:addMuscles(self.thighMuscleRight, self.legMuscleRight)
     
-    self.footLeft = PointMass(x + 3/5 * headLength, y + 4.88 * headLength)
-    self.footRight = PointMass(x - 3/5 * headLength, y + 4.88 * headLength)
-    self.footLeft.mass = 5
-    self.footRight.mass = 5
-    self.footLeft:attachTo(self.kneeLeft, 1.5 * headLength, 1, nil, true)
-    self.footRight:attachTo(self.kneeRight, 1.5 * headLength, 1, nil, true)
-    
-    self.kneeRight:becomeJoint(self.pelvis, self.footRight, 0.3, math.pi, 1)
-    self.kneeLeft:becomeJoint(self.pelvis, self.footLeft, 0.3, math.pi, 1)
-    
-    self.pelvis:becomeJoint(self.shoulder, self.kneeLeft, math.pi * 0.8, -0.3, 1)
-    self.pelvis:becomeJoint(self.shoulder, self.kneeRight, math.pi * 0.8, -0.3, 1)
-    self.pelvis:becomeJoint(self.shoulder, self.footLeft, 1, -1, 1)
-    self.pelvis:becomeJoint(self.shoulder, self.footRight, 1, -1, 1)
-    
-    self.shoulder:becomeJoint(self.pelvis, self.elbowLeft, -math.pi*0.4, math.pi, 1)
-    self.shoulder:becomeJoint(self.pelvis, self.elbowRight, -math.pi*0.4, math.pi, 1)
-    
-    self.elbowLeft:becomeJoint(self.shoulder, self.handLeft, -math.pi, -0.1,1)
-    self.elbowRight:becomeJoint(self.shoulder, self.handRight, -math.pi, -0.1,1)
-    
-    self.pelvis:becomeJoint(self.shoulder, self.kneeLeft, math.pi * 0.8, math.pi * 0.8, 0.4)
-    self.pelvis:becomeJoint(self.shoulder, self.kneeRight, -math.pi * 0.8, -math.pi * 0.8, 0.4)
-    
-    self.pointmasses = {}
-    
-    self.pointmasses[1] = self.head
-    self.pointmasses[2] = self.shoulder
-    self.pointmasses[3] = self.elbowLeft
-    self.pointmasses[4] = self.elbowRight
-    self.pointmasses[5] = self.handLeft
-    self.pointmasses[6] = self.handRight
-    self.pointmasses[7] = self.pelvis
-    self.pointmasses[8] = self.kneeLeft
-    self.pointmasses[9] = self.kneeRight
-    self.pointmasses[10] = self.footLeft
-    self.pointmasses[11] = self.footRight
+    self.canwalk = true
+    self.facingLeft = true
 end
+
+function Player:update()
+    
+    if self.footRight:checkOnGround() or self.footLeft:checkOnGround() then self.canwalk = true end
+    
+    if self.footLeft.onGround or self.footRight.onGround then
+        self.balance:doGyroScopicAction()
+    end
+    
+    if love.keyboard.isDown("a") then
+        if self.footLeft.onGround and self.footRight.onGround and self.canwalk then
+            local f = self.footLeft.pos.x > self.footRight.pos.x and self.footLeft or self.footRight
+            f.lastPos = f.lastPos + Vector(7,3)
+            self.canwalk = false
+        end
+    elseif love.keyboard.isDown("d") then
+        if self.footLeft.onGround and self.footRight.onGround and self.canwalk then
+            local f = self.footLeft.pos.x < self.footRight.pos.x and self.footLeft or self.footRight
+            f.lastPos = f.lastPos + Vector(-7,3)
+            self.canwalk = false
+        end
+    end
+    
+    local anchor = self.footLeft.pos.x + (self.footRight.pos.x - self.footLeft.pos.x)/ 2
+    if self.facingLeft and love.mouse.getX() > anchor then
+        self:flip(anchor)
+        self.facingLeft = false
+    elseif not self.facingLeft and love.mouse.getX() < anchor then
+        self:flip(anchor)
+        self.facingLeft = true
+    end
+    
+    self.footRight:decreaseFootFever()
+    self.footLeft:decreaseFootFever()
+end
+
+function Player:doFootFever(f, normal, penetration)
+    if normal.y > 0 then return end
+    f:callFootFever()
+    
+    local b = f.links[1].p2
+    local vec1 = f.pos - b.pos
+    
+    local angle = math.atan2(normal % vec1, normal * vec1) --"%" = cross product
+    
+    if self.footmina > self.footmaxa then
+        if angle <= self.footmaxa or angle >= self.footmina then return end
+    else
+        if angle <= self.footmaxa and angle >= self.footmina then return end
+    end
+    
+    local diff1 = angle - self.footmina
+    
+    if diff1 <= -math.pi then
+        diff1 = diff1 + 2 * math.pi
+    elseif diff1 >= math.pi then
+        diff1 = diff1 - 2 * math.pi
+    end
+    
+    local diff2 = angle - self.footmaxa
+        
+    if diff2 <= -math.pi then
+        diff2 = diff2 + 2 * math.pi
+    elseif diff2 >= math.pi then
+        diff2 = diff2 - 2 * math.pi
+    end
+    
+    local diff = math.abs(diff1) < math.abs(diff2) and diff1 or diff2
+
+    diff = (diff /physics.getDeltaTime())
+
+    --b.pos:rotateAround(f.pos, -diff* b.imass)-- * imB / imTotal)
+end
+
+function Player:flip(anchor)
+    for _,v in pairs(self.bodyConstraints) do
+        v:negateAngle()
+    end
+    self.thighMuscleLeft:negateAngle()
+    self.thighMuscleRight:negateAngle()
+    self.legMuscleLeft:negateAngle()
+    self.legMuscleRight:negateAngle()
+    
+    --for _,v in pairs(self.pointmasses) do
+    --    v.pos.x = v.pos.x - (v.pos.x - anchor)
+    --    v.lastPos.x = v.lastPos.x - (v.lastPos.x - anchor)
+    --end
+end
+
