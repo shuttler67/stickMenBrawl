@@ -26,9 +26,9 @@ end
 
 function StaticPolygon:solve(pointmass_or_link)
     
-    if tostring(pointmass_or_link) == "PointMass" then
+    if PointMass:made(pointmass_or_link) then
         return self:solvePointMass(pointmass_or_link)
-    elseif tostring(pointmass_or_link) == "Link" then
+    elseif Link:made(pointmass_or_link) then
         return self:solveLink(pointmass_or_link)
     end
 end

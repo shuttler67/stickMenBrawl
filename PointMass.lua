@@ -26,6 +26,7 @@ end
 
 function PointMass:updatePhysics(timeStep, gravity, damping)
 
+    
     self.acc = self.acc + Vector(0, gravity)
     
     local vel = self.pos - self.lastPos
@@ -44,7 +45,7 @@ function PointMass:updatePhysics(timeStep, gravity, damping)
 end
 
 function PointMass:draw()
-    love.graphics.setColor(255, 255, 255)
+    love.graphics.setColor(love.math.random(0,255), love.math.random(0,255), love.math.random(0,255))
     for _,l in pairs(self.links) do
         l:draw()
     end
@@ -139,7 +140,6 @@ function PointMass:subscribeToCollisions(func, instance)
 end
 
 function PointMass:simulateFriction(friction, normal, penetration)
-
     local pV = self.pos - self.lastPos
     local t = Vector(normal.y, -normal.x)
 
@@ -165,4 +165,12 @@ function PointMass:edgeCollide(friction, normal, penetration)
             v(k, self, normal, penetration)
         end
     end
+end
+
+function PointMass:getX()
+    return self.pos.x
+end
+
+function PointMass:getY()
+    return self.pos.y
 end

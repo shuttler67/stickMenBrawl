@@ -7,13 +7,7 @@ function Vector:__tostring()
 end
 
 function Vector:init(x, y)
-    if Vector:made(x) then
-        self.x = x.x
-        self.y = x.y
-    else
-        self.x = x
-        self.y = y
-    end
+    self:set(x,y)
 end
 
 function Vector:newNormal(phi)
@@ -31,8 +25,13 @@ function Vector:LengthSqr()
 end
 
 function Vector:set(x, y)
-    self.x = x
-    self.y = y
+    if Vector:made(x) then
+        self.x = x.x
+        self.y = x.y
+    else
+        self.x = x
+        self.y = y
+    end
     return self
 end
 
