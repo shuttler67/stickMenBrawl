@@ -4,8 +4,11 @@ local shouldermass =26
 function Player:init(x, y)
     self.super:init(x, y)
     
-    self.legMuscleRight = self.kneeRight:becomeMuscle(self.pelvis, self.footRight, math.pi *0.7 , 0.8)
-    self.legMuscleLeft = self.kneeLeft:becomeMuscle(self.pelvis, self.footLeft, math.pi *0.7, 0.8)
+    self.thighMuscleLeft = self.pelvis:becomeMuscle(self.shoulder, self.kneeLeft, math.pi , 0.3)
+    self.thighMuscleRight = self.pelvis:becomeMuscle(self.shoulder, self.kneeRight, -math.pi , 0.3)
+    
+    self.legMuscleRight = self.kneeRight:becomeMuscle(self.pelvis, self.footRight, math.pi *0.9 , 0.6)
+    self.legMuscleLeft = self.kneeLeft:becomeMuscle(self.pelvis, self.footLeft, math.pi *0.9, 0.6)
     
     --self.bicepsANDtricepsLeft = self.elbowLeft:becomeMuscle(self.shoulder, self.handLeft, -0.8, 0.7)
     --self.bicepsANDtricepsRight = self.elbowLeft:becomeMuscle(self.shoulder, self.handRight, -1, 0.7)
@@ -25,61 +28,77 @@ function Player:init(x, y)
     
     self.canwalk = true
     self.facingLeft = true
+    
+    self.disabled = 0
 end
 
 function Player:update()
     
     if self.footRight:checkOnGround() or self.footLeft:checkOnGround() then self.canwalk = true end
-    
+    self:walk()
     if self.footLeft.onGround or self.footRight.onGround then
         self.balance:doGyroScopicAction()
 
     end
-    
-    if self.footLeft.onGround and self.footRight.onGround and self.canwalk then
-        if love.keyboard.isDown("a") then
-            
-            local f1, f2 = self.footLeft, self.footRight
-            if self.footLeft:getX() < self.footRight:getX() then 
-                f1, f2 = f2, f1
-            end
-            f1.lastPos = f1.lastPos + Vector(5 + math.abs(f2:getX() - f1:getX()) / 10,1)
-            self.canwalk = false
-        elseif love.keyboard.isDown("d") then
-            
-            local f1, f2 = self.footLeft, self.footRight
-            if self.footLeft:getX() > self.footRight:getX() then 
-                f1, f2 = f2, f1
-            end
-            f1.lastPos = f1.lastPos + Vector(-5 - math.abs(f2:getX() - f1:getX()) / 10,1)
-            self.canwalk = false
-        end
-    end
-    
-    local anchor = self.footLeft:getX() + (self.footRight:getX() - self.footLeft:getX())/ 2
-    if self.facingLeft and love.mouse.getX() > anchor then
-        self:flip(anchor)
-        self.facingLeft = false
-    elseif not self.facingLeft and love.mouse.getX() < anchor then
-        self:flip(anchor)
-        self.facingLeft = true
-    end
+
+    --local anchor = self.footLeft:getX() + (self.footRight:getX() - self.footLeft:getX())/ 2
+    --if self.facingLeft and love.mouse.getX() > anchor then
+    --    self:flip(anchor)
+    --    self.facingLeft = false
+    --elseif not self.facingLeft and love.mouse.getX() < anchor then
+    --    self:flip(anchor)
+    --    self.facingLeft = true
+    --end
     
     self.footRight:decreaseFootFever()
     self.footLeft:decreaseFootFever()
 end
 
+function Player:walk()
+    
+    local f, condition
+    if love.keyboard.isDown("a") then
+        condition = self.footLeft:getX() > self.footRight:getX()
+        if not self.facingLeft then
+            self:flip()
+            self.facingLeft = true
+        end
+    elseif love.keyboard.isDown("d") then
+        condition = self.footLeft:getX() < self.footRight:getX()
+        if self.facingLeft then
+            self:flip()
+            self.facingLeft = false
+        end
+    else 
+        return
+    end
+
+    if self.footLeft.onGround and self.footRight.onGround and self.canwalk then
+            
+        f = condition and self.footLeft or self.footRight
+        local kick = math.abs(self.footRight:getX() - self.footLeft:getX())/10 +5
+        if love.keyboard.isDown("d") then
+            kick = -kick
+        end
+        
+        f.lastPos = f.lastPos + Vector(kick,3)
+        self.canwalk = false
+    end
+end
+
 function Player:doFootFever(f, normal, penetration)
-    if normal.y > 0 then return end
+    --if normal.y > 0 then return end
     f:callFootFever()
 
     --b.pos:rotateAround(f.pos, -diff* b.imass)-- * imB / imTotal)
 end
 
-function Player:flip(anchor)
+function Player:flip()
     for _,v in pairs(self.bodyConstraints) do
         v:negateAngle()
     end
+    --self.thighMuscleLeft:negateAngle()
+    --self.thighMuscleRight:negateAngle()
     self.legMuscleLeft:negateAngle()
     self.legMuscleRight:negateAngle()
     

@@ -14,10 +14,11 @@ function Foot:addMuscles(...)
 end
 
 function Foot:callFootFever()
-    self.calledFootFever = 2
+    self.calledFootFever = 1
     if not self.onGround then
         self.onGround = true
         self:setMass(0)
+        self.lastPos:set(self.pos)
         for _,m in pairs(self.muscles) do
             m:enable()
         end
