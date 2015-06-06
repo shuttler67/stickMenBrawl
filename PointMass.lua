@@ -166,3 +166,11 @@ function PointMass:edgeCollide(friction, normal, penetration)
         end
     end
 end
+
+function PointMass:getX()
+    return self.pos.x
+end
+
+function PointMass:getY()
+    return self.pos.y
+end
